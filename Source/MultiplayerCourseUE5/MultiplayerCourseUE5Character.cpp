@@ -9,6 +9,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Net/UnrealNetwork.h"
+#include "Engine/StaticMeshActor.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -124,6 +126,40 @@ void AMultiplayerCourseUE5Character::Look(const FInputActionValue& Value)
 	}
 }
 
+void AMultiplayerCourseUE5Character::ServerRPCFunction_Implementation()
+{
+	if (HasAuthority())
+	{
+#if 0
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("ServerRPCFunction_Implementation"));
+#endif
+		if (!SphereMesh)
+		{
+			return;
+		}
+
+		AStaticMeshActor *StaticMeshActor = GetWorld()->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass());
+		if (StaticMeshActor) 
+		{
+			StaticMeshActor->SetReplicates(true);
+			StaticMeshActor->SetReplicateMovement(true);
+			StaticMeshActor->SetMobility(EComponentMobility::Movable);
+			//Spawn 100cm in front of player and 50cm above
+			FVector SpawnLocation = GetActorLocation() + GetActorRotation().Vector()*100.f + GetActorUpVector()*50.0f; 
+			StaticMeshActor->SetActorLocation(SpawnLocation);
+			UStaticMeshComponent *StaticMeshComponent = StaticMeshActor->GetStaticMeshComponent();
+			if (StaticMeshComponent)
+			{
+				StaticMeshComponent->SetIsReplicated(true);
+				StaticMeshComponent->SetSimulatePhysics(true);
+				if (SphereMesh)
+				{
+					StaticMeshComponent->SetStaticMesh(SphereMesh);
+				}
+			}
+		}
+	}
+}
 
 
 

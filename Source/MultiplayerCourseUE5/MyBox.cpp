@@ -42,7 +42,11 @@ void AMyBox::OnRep_ReplicatedVar()
 {
 	if (HasAuthority()) //if you are the server
 	{
+		FVector NewLocation = GetActorLocation() + FVector(0.0f, 0.0f, 200.0f);
+		SetActorLocation(NewLocation);
+
 		//note this wont be called since the OnRep functions should only ever be called by a client
+		//unless we call this from blueprint (which we do)
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("Server: OnRep_ReplicatedVar"));
 	}
 	else //if you are the client
