@@ -126,13 +126,15 @@ void AMultiplayerCourseUE5Character::Look(const FInputActionValue& Value)
 	}
 }
 
-void AMultiplayerCourseUE5Character::ServerRPCFunction_Implementation()
+void AMultiplayerCourseUE5Character::ServerRPCFunction_Implementation(int arg)
 {
 	if (HasAuthority())
 	{
 #if 0
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("ServerRPCFunction_Implementation"));
 #endif
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, FString::Printf(TEXT("MyArg: %d"), arg));
+
 		if (!SphereMesh)
 		{
 			return;
@@ -161,5 +163,15 @@ void AMultiplayerCourseUE5Character::ServerRPCFunction_Implementation()
 	}
 }
 
-
+bool AMultiplayerCourseUE5Character::ServerRPCFunction_Validate(int arg)
+{
+	//if we return false the implementation will not run
+	//runs before implementation
+	//client is kicked if invalid input is received
+	if (arg >= 0 && arg <= 100)
+	{
+		return true;
+	}
+	return false;
+}
 
